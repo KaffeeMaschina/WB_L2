@@ -1,5 +1,13 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"unicode"
+)
+
 /*
 === Задача на распаковку ===
 
@@ -18,6 +26,31 @@ package main
 Функция должна проходить все тесты. Код должен проходить проверки go vet и golint.
 */
 
-func main() {
+var ErrWrongString = errors.New("incorrect string")
 
+func main() {
+	fmt.Println(unpack(`4asd4bk2`))
+
+}
+func unpack(s string) (string, error) {
+
+	var sb strings.Builder
+	for i, v := range s {
+		if unicode.IsDigit(rune(s[0])) || unicode.IsDigit(v) && unicode.IsDigit(rune(s[i-1])) {
+			return "", ErrWrongString
+		}
+		if unicode.IsDigit(v) {
+			num, err := strconv.ParseInt(string(v), 10, 0)
+			if err != nil {
+				return "", fmt.Errorf("cannot ParseInt :%w", err)
+			}
+			for j := 0; j < int(num)-1; j++ {
+				sb.WriteByte(s[i-1])
+			}
+		} else {
+			sb.WriteByte(s[i])
+		}
+
+	}
+	return sb.String(), nil
 }
